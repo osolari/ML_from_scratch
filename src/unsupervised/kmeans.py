@@ -118,7 +118,14 @@ class KMeans(TransformerMixin, ClusterMixin, BaseEstimator):
             raise ValueError("KMeans is not fitted")
 
     @staticmethod
-    def plot_2d(ax: plt.Axes, X: NDArray, *args, **kwargs):
+    def plot_2d(ax: plt.Axes, X: NDArray, **kwargs):
+        """
+
+        :param ax:
+        :param X:
+        :param kwargs:
+        :return:
+        """
 
         if len(X.shape) < 2 or X.shape[1] != 2:
             raise ValueError(
