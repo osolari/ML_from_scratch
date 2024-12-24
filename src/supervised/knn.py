@@ -8,13 +8,13 @@ from typing import Union, Dict
 import numpy as np
 from numpy.typing import NDArray, ArrayLike
 
-from sklearn.base import ClassifierMixin
+from sklearn.base import ClassifierMixin, BaseEstimator
 from sklearn.utils import check_X_y, check_consistent_length, check_array
 
 from src.utils.mlutils import matrix_euclidean_distance
 
 
-class KNN(ClassifierMixin):
+class KNN(BaseEstimator, ClassifierMixin):
 
     def __init__(self, n_neighbors: int = 3):
         """
