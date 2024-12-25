@@ -8,6 +8,7 @@ Common Machine Learning algorithms/Models implementation from scratch.
   - [KNN](https://github.com/osolari/ML_from_scratch/blob/main/src/supervised/knn.py)
 - [Unsupervised Learning](https://github.com/osolari/ML_from_scratch/tree/main/src/unsupervised)
   - [Kmeans](https://github.com/osolari/ML_from_scratch/blob/main/src/unsupervised/kmeans.py)
+  - [PCA](https://github.com/osolari/ML_from_scratch/blob/main/src/unsupervised/pca.py)
 
 ## Installation and usage.
 
