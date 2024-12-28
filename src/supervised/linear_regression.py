@@ -139,6 +139,8 @@ class _RegressionBase(RegressorMixin):
 
         self._coef = coef
 
+        return self
+
     def predict(self, X: NDArray) -> NDArray:
         """
         Predicts target values for the given input data.
