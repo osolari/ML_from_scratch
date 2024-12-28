@@ -5,6 +5,7 @@ from numpy._typing import NDArray
 from sklearn.base import RegressorMixin
 from sklearn.utils import check_X_y, check_array
 
+from src.test.utils.mlutils import add_intercept_column
 from src.utils.losses import Loss, L1Loss, L2Loss, ElasticNetLoss
 
 
@@ -51,7 +52,7 @@ class _RegressionBase(RegressorMixin):
 
         X, y = check_X_y(X, y)
         if self.fit_intercept:
-            X = np.hstack([np.ones((X.shape[0], 1)), X])
+            X = add_intercept_column(X)
         n_samples, self.n_features = X.shape
 
         coef = self._xavier_initialization()
@@ -81,6 +82,8 @@ class _RegressionBase(RegressorMixin):
         :return:
         """
         X = check_array(X)
+        if self.fit_intercept:
+            X = add_intercept_column(X)
         return X @ self._coef
 
     def _converged(self, param, new_param):
