@@ -6,7 +6,7 @@ from numpy import ndarray, dtype, bool
 from numpy._typing import NDArray
 
 
-class Loss:
+class _Regularization:
     def __init__(self):
         pass
 
@@ -15,11 +15,11 @@ class Loss:
         pass
 
     @abstractmethod
-    def grad(self, X: NDArray) -> NDArray:
+    def gradient(self, X: NDArray) -> NDArray:
         pass
 
 
-class L1Loss(Loss):
+class L1Regularization(_Regularization):
 
     def __init__(self, alpha: float = 1.0):
         super().__init__()
@@ -28,11 +28,11 @@ class L1Loss(Loss):
     def __call__(self, x: NDArray) -> float:
         return self.alpha * np.linalg.norm(x, ord=1)
 
-    def grad(self, x: NDArray) -> NDArray:
+    def gradient(self, x: NDArray) -> NDArray:
         return self.alpha * np.sign(x)
 
 
-class L2Loss(Loss):
+class L2Regularization(_Regularization):
     def __init__(self, alpha: float = 1.0, squared: bool = False):
         """
 
@@ -53,7 +53,7 @@ class L2Loss(Loss):
             (x.T @ x).sum() if self.squared else np.linalg.norm(x, ord=2)
         )
 
-    def grad(self, x: NDArray) -> NDArray:
+    def gradient(self, x: NDArray) -> NDArray:
         """
 
         :param x:
@@ -63,7 +63,7 @@ class L2Loss(Loss):
         return self.alpha * x if self.squared else self.alpha * x / self(x)
 
 
-class ElasticNetLoss(Loss):
+class ElasticNetRegularization(_Regularization):
     def __init__(self, alpha: float = 1.0, ratio: float = 1):
         """
 
@@ -86,15 +86,15 @@ class ElasticNetLoss(Loss):
         self.ratio = ratio
         self.contributions = contributions
 
-        self.l2_loss = L2Loss(alpha=alpha)
-        self.l1_loss = L1Loss(alpha=alpha)
+        self.l2_loss = L2Regularization(alpha=alpha)
+        self.l1_loss = L1Regularization(alpha=alpha)
 
     def __call__(self, x: NDArray) -> float:
 
         return self.contributions @ np.array([self.l2_loss(x), self.l1_loss(x)])
 
-    def grad(self, x: NDArray) -> NDArray:
+    def gradient(self, x: NDArray) -> NDArray:
 
         return self.contributions @ np.vstack(
-            [self.l2_loss.grad(x), self.l1_loss.grad(x)]
+            [self.l2_loss.gradient(x), self.l1_loss.gradient(x)]
         )

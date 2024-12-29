@@ -38,8 +38,11 @@ This implementation optimizes the weights using the gradient descent method desc
 
 from typing import Optional
 import numpy as np
-from sklearn.base import BaseEstimator, LinearClassifierMixin
+from sklearn.base import BaseEstimator
+from sklearn.linear_model._base import LinearClassifierMixin
 from sklearn.utils.validation import check_X_y, check_array
+
+from src.utils.mathutils import sigmoid
 
 
 def add_intercept_column(X: np.ndarray) -> np.ndarray:
@@ -119,7 +122,7 @@ class LogisticRegression(LinearClassifierMixin, BaseEstimator):
 
         # Gradient descent optimization
         for _ in range(self.max_iter):
-            yhat = self.sigmoid(X @ coef)  # Predicted probabilities
+            yhat = sigmoid(X @ coef)  # Predicted probabilities
             residuals = y - yhat  # Difference between actual and predicted values
             dldcoef = residuals @ X  # Gradient calculation
 
@@ -146,21 +149,8 @@ class LogisticRegression(LinearClassifierMixin, BaseEstimator):
         X = check_array(X)
         if self.fit_intercept:
             X = add_intercept_column(X)
-        yhat = self.sigmoid(X @ self._coef)
+        yhat = sigmoid(X @ self._coef)
         return yhat
-
-    @staticmethod
-    def sigmoid(x: np.ndarray) -> np.ndarray:
-        """
-        Applies the sigmoid function element-wise.
-
-        Args:
-            x (np.ndarray): Input array.
-
-        Returns:
-            np.ndarray: Transformed array with sigmoid applied.
-        """
-        return 1 / (1 + np.exp(-x))
 
     def _converged(self, param: np.ndarray, new_param: np.ndarray) -> bool:
         """

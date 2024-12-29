@@ -61,7 +61,12 @@ from sklearn.base import RegressorMixin
 from sklearn.utils import check_X_y, check_array
 
 from src.test.utils.mlutils import add_intercept_column
-from src.utils.losses import Loss, L1Loss, L2Loss, ElasticNetLoss
+from src.utils.regularization import (
+    _Regularization,
+    L1Regularization,
+    L2Regularization,
+    ElasticNetRegularization,
+)
 
 
 class _RegressionBase(RegressorMixin):
@@ -74,7 +79,7 @@ class _RegressionBase(RegressorMixin):
         fit_intercept: bool,
         max_iter: int,
         learning_rate: float,
-        regularization: Union[Loss, None] = None,
+        regularization: Union[_Regularization, None] = None,
         tol: float = 1e-8,
     ):
         """
@@ -84,7 +89,7 @@ class _RegressionBase(RegressorMixin):
             fit_intercept (bool): Whether to add an intercept term.
             max_iter (int): Maximum number of iterations for gradient descent.
             learning_rate (float): Learning rate for optimization.
-            regularization (Union[Loss, None]): Regularization loss function.
+            regularization (Union[_Regularization, None]): Regularization loss function.
             tol (float): Tolerance for convergence. Defaults to 1e-8.
         """
         self._coef = None
@@ -125,7 +130,7 @@ class _RegressionBase(RegressorMixin):
             yhat = X @ coef
             residuals = yhat - y
             dldcoef = (
-                X.T @ residuals / n_samples + self.regularization.grad(coef)
+                X.T @ residuals / n_samples + self.regularization.gradient(coef)
                 if self.regularization
                 else 0
             )
@@ -256,7 +261,7 @@ class Lasso(_RegressionBase):
             max_iter (int): Maximum number of iterations for optimization. Defaults to 1000.
             tol (float): Tolerance for convergence. Defaults to 1e-8.
         """
-        self.regularization = L1Loss(alpha=alpha)
+        self.regularization = L1Regularization(alpha=alpha)
         super().__init__(
             fit_intercept=fit_intercept,
             max_iter=max_iter,
@@ -289,7 +294,7 @@ class Ridge(_RegressionBase):
             max_iter (int): Maximum number of iterations for optimization. Defaults to 1000.
             tol (float): Tolerance for convergence. Defaults to 1e-8.
         """
-        self.regularization = L2Loss(alpha=alpha)
+        self.regularization = L2Regularization(alpha=alpha)
         super().__init__(
             fit_intercept=fit_intercept,
             max_iter=max_iter,
@@ -324,7 +329,7 @@ class ElasticNet(_RegressionBase):
             max_iter (int): Maximum number of iterations for optimization. Defaults to 1000.
             tol (float): Tolerance for convergence. Defaults to 1e-8.
         """
-        self.regularization = ElasticNetLoss(alpha=alpha, ratio=ratio)
+        self.regularization = ElasticNetRegularization(alpha=alpha, ratio=ratio)
         super().__init__(
             fit_intercept=fit_intercept,
             max_iter=max_iter,
