@@ -15,7 +15,7 @@ class _Regularization:
         pass
 
     @abstractmethod
-    def gradient(self, X: NDArray) -> NDArray:
+    def compute_gradient(self, X: NDArray) -> NDArray:
         pass
 
 
@@ -28,7 +28,7 @@ class L1Regularization(_Regularization):
     def __call__(self, x: NDArray) -> float:
         return self.alpha * np.linalg.norm(x, ord=1)
 
-    def gradient(self, x: NDArray) -> NDArray:
+    def compute_gradient(self, x: NDArray) -> NDArray:
         return self.alpha * np.sign(x)
 
 
@@ -53,7 +53,7 @@ class L2Regularization(_Regularization):
             (x.T @ x).sum() if self.squared else np.linalg.norm(x, ord=2)
         )
 
-    def gradient(self, x: NDArray) -> NDArray:
+    def compute_gradient(self, x: NDArray) -> NDArray:
         """
 
         :param x:
@@ -93,8 +93,8 @@ class ElasticNetRegularization(_Regularization):
 
         return self.contributions @ np.array([self.l2_loss(x), self.l1_loss(x)])
 
-    def gradient(self, x: NDArray) -> NDArray:
+    def compute_gradient(self, x: NDArray) -> NDArray:
 
         return self.contributions @ np.vstack(
-            [self.l2_loss.gradient(x), self.l1_loss.gradient(x)]
+            [self.l2_loss.compute_gradient(x), self.l1_loss.compute_gradient(x)]
         )

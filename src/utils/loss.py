@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 import numpy as np
 
 from src.utils.activation import Sigmoid
@@ -20,6 +22,21 @@ class _Loss:
 
     def __init__(self, reduction: str = "mean"):
         self.reduction = reduction
+
+    @abstractmethod
+    def __call__(self, y, ypred):
+
+        pass
+
+    @abstractmethod
+    def compute_gradient(self, y, ypred):
+
+        pass
+
+    @abstractmethod
+    def compute_hessian(self, y, ypred):
+
+        pass
 
 
 class LogisticLoss(_Loss):
@@ -63,10 +80,10 @@ class LogisticLoss(_Loss):
     >>> loss_func = LogisticLoss()
     >>> loss = loss_func(y_true, y_pred)
     >>> print("Logistic Loss:", loss)
-    >>> grad = loss_func.gradient(y_true, y_pred)
+    >>> grad = loss_func.compute_gradient(y_true, y_pred)
     >>> print("Gradient:", grad)
-    >>> hess = loss_func.hess(y_true, y_pred)
-    >>> print("Hessian:", hess)
+    >>> hess = loss_func.compute_hessian(y_true, y_pred)
+    >>> print("Hessian:", compute_hessian)
     """
 
     def __init__(self):
@@ -99,7 +116,7 @@ class LogisticLoss(_Loss):
         p = self.func(y_pred)
         return -(y * np.log(p) + (1 - y) * np.log(1 - p))
 
-    def gradient(self, y: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+    def compute_gradient(self, y: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """
         Compute the gradient of the logistic loss with respect to predictions.
 
@@ -120,13 +137,13 @@ class LogisticLoss(_Loss):
         >>> y_true = np.array([0, 1, 1, 0])
         >>> y_pred = np.array([0.1, 0.9, 0.8, 0.3])
         >>> loss_func = LogisticLoss()
-        >>> grad = loss_func.gradient(y_true, y_pred)
+        >>> grad = loss_func.compute_gradient(y_true, y_pred)
         >>> print("Gradient:", grad)
         """
         p = self.func(y_pred)
         return -(y - p)
 
-    def hess(self, y: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+    def compute_hessian(self, y: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """
         Compute the Hessian of the logistic loss with respect to predictions.
 
@@ -147,7 +164,7 @@ class LogisticLoss(_Loss):
         >>> y_true = np.array([0, 1, 1, 0])
         >>> y_pred = np.array([0.1, 0.9, 0.8, 0.3])
         >>> loss_func = LogisticLoss()
-        >>> hess = loss_func.hess(y_true, y_pred)
+        >>> hess = loss_func.compute_hessian(y_true, y_pred)
         >>> print("Hessian:", hess)
         """
         p = self.func(y_pred)

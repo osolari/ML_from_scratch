@@ -72,3 +72,58 @@ def bisect_array_on_feature(
         return mask
     else:
         return X[mask], X[~mask], None
+
+
+import numpy as np
+
+
+def one_hot_encoding(x: np.ndarray, n_classes: int = None) -> np.ndarray:
+    """
+    Perform one-hot encoding for a given array of class labels.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Array of class labels, shape (n_samples,). Each element should be an integer representing a class index.
+    n_classes : int, optional
+        The total number of classes. If None, it is inferred as `X.max() + 1`.
+
+    Returns
+    -------
+    np.ndarray
+        One-hot encoded array of shape (n_samples, n_classes). Each row corresponds to a sample, and each column
+        corresponds to a class.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> x = np.array([0, 2, 1, 3])
+    >>> one_hot_encoding(x)
+    array([[1., 0., 0., 0.],
+           [0., 0., 1., 0.],
+           [0., 1., 0., 0.],
+           [0., 0., 0., 1.]])
+
+    >>> x = np.array([1, 2, 3])
+    >>> one_hot_encoding(x, n_classes=5)
+    array([[0., 1., 0., 0., 0.],
+           [0., 0., 1., 0., 0.],
+           [0., 0., 0., 1., 0.]])
+
+    Notes
+    -----
+    - The input array `X` should contain integer values representing class indices starting from 0.
+    - If `n_classes` is smaller than `X.max() + 1`, an error will occur because some class indices cannot be encoded.
+    - The function uses NumPy for efficient indexing and matrix creation.
+    """
+    if n_classes is None:
+        # Infer the number of classes from the maximum value in X
+        n_classes = x.max() + 1
+
+    # Initialize the one-hot encoded matrix with zeros
+    x_one_hot = np.zeros((x.shape[0], n_classes))
+
+    # Set the appropriate indices to 1 for one-hot encoding
+    x_one_hot[np.arange(x.shape[0]), x] = 1
+
+    return x_one_hot

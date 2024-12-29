@@ -130,7 +130,7 @@ class _RegressionBase(RegressorMixin):
             yhat = X @ coef
             residuals = yhat - y
             dldcoef = (
-                X.T @ residuals / n_samples + self.regularization.gradient(coef)
+                X.T @ residuals / n_samples + self.regularization.compute_gradient(coef)
                 if self.regularization
                 else 0
             )

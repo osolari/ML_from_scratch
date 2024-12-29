@@ -47,6 +47,7 @@ from sklearn.utils.validation import check_X_y, check_array
 from collections import Counter
 
 from src.utils.datautils import bisect_array_on_feature
+from src.utils.loss import _Loss
 from src.utils.mlutils import (
     compute_information_gain,
     compute_entropy,
@@ -145,7 +146,7 @@ class _BaseDecisionTree(BaseEstimator):
         Maximum depth of the tree. Default is infinity.
     min_sample_split : int
         Minimum number of samples required to split an internal node.
-    min_purity : float
+    min_impurity : float
         Minimum impurity gain required to make a split.
     loss : Callable, optional
         Loss function used to evaluate splits.
@@ -161,12 +162,12 @@ class _BaseDecisionTree(BaseEstimator):
         self,
         max_depth: float = float("inf"),
         min_sample_split: int = 2,
-        min_purity: float = 1e-7,
-        loss: Optional[Callable] = None,
+        min_impurity: float = 1e-7,
+        loss: Union[_Loss, None] = None,
     ):
         self.max_depth = max_depth
         self.min_sample_split = min_sample_split
-        self.min_purity = min_purity
+        self.min_impurity = min_impurity
         self.loss = loss
 
         self.root: Optional[DecisionNode] = None
@@ -264,7 +265,7 @@ class _BaseDecisionTree(BaseEstimator):
                                 feature_idx=feat_idx, cutoff=cutoff, mask=mask
                             )
 
-            if max_score > self.min_purity and decision_rule is not None:
+            if max_score > self.min_impurity and decision_rule is not None:
                 left_subtree = self._fit(
                     X[decision_rule["mask"]], y[decision_rule["mask"]], depth + 1
                 )
