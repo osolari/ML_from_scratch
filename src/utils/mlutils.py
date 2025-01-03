@@ -2,6 +2,7 @@ from collections import Counter
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
+from scipy.special import logsumexp
 from sklearn.utils import check_consistent_length
 from typing import Union, List, Any
 
@@ -237,3 +238,43 @@ def compute_variance_reduction(y: np.ndarray, yl: np.ndarray, yr: np.ndarray) ->
 
     # Compute and return the variance reduction, summed to produce a scalar
     return sum(total_variance - (n_l * var_l + n_r * var_r) / n)
+
+
+def log_softmax(x: np.ndarray) -> np.ndarray:
+    """
+    Compute the log-softmax of an input array.
+
+    Parameters:
+    x (np.ndarray): Input array for which to compute the log-softmax.
+
+    Returns:
+    np.ndarray: Array with the log-softmax values of the input.
+
+    Theory:
+    The log-softmax function is defined as:
+        log_softmax(x)_i = x_i - log(sum(exp(x)))
+    This is useful for numerical stability when working with probabilities in log-space.
+    """
+    x = x - x.max()  # Shift for numerical stability
+    _log_sum_exp = logsumexp(x)  # Compute log(sum(exp(x)))
+    x -= _log_sum_exp  # Subtract the log of the sum of exponentials
+    return x
+
+
+def softmax(x: np.ndarray) -> np.ndarray:
+    """
+    Compute the softmax of an input array.
+
+    Parameters:
+    x (np.ndarray): Input array for which to compute the softmax.
+
+    Returns:
+    np.ndarray: Array with the softmax values of the input.
+
+    Theory:
+    The softmax function is defined as:
+        softmax(x)_i = exp(x_i) / sum(exp(x))
+    This is a common function in machine learning to convert scores into probabilities.
+    """
+    x = log_softmax(x)  # Use log-softmax for numerical stability
+    return np.exp(x)

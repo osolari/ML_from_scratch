@@ -39,66 +39,13 @@ Use Cases:
 - Feature selection and data exploration.
 """
 
-from typing import Optional, Dict, Union, Callable
-import numpy as np
-from numpy.typing import NDArray
-from sklearn.base import BaseEstimator
-from sklearn.utils.validation import check_X_y, check_array
-from collections import Counter
-
 from src.utils.datautils import bisect_array_on_feature
 from src.utils.loss import _Loss
 from src.utils.mlutils import (
     compute_information_gain,
-    compute_entropy,
     compute_majority_class,
     compute_variance_reduction,
 )
-
-
-class DecisionNode:
-    """
-    Represents a single node in the decision tree.
-
-    Attributes
-    ----------
-    feature_idx : Optional[int]
-        Index of the feature used for splitting. None for leaf nodes.
-    cutoff : Optional[float]
-        The cutoff value for the feature used for splitting. None for leaf nodes.
-    val : Optional[Union[int, float, str]]
-        Value stored in leaf nodes.
-    left : Optional[DecisionNode]
-        Left child node.
-    right : Optional[DecisionNode]
-        Right child node.
-    """
-
-    def __init__(
-        self,
-        feature_idx: Optional[int] = None,
-        cutoff: Optional[float] = None,
-        val: Optional[Union[int, float, str]] = None,
-        left: Optional["DecisionNode"] = None,
-        right: Optional["DecisionNode"] = None,
-    ):
-        self.feature_idx = feature_idx
-        self.cutoff = cutoff
-        self.val = val
-        self.left = left
-        self.right = right
-
-    def is_leaf(self) -> bool:
-        """
-        Checks if the current node is a leaf node.
-
-        Returns
-        -------
-        bool
-            True if the node is a leaf, False otherwise.
-        """
-        return self.left is None and self.right is None
-
 
 from typing import Optional, Callable, Union
 import numpy as np
