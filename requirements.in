@@ -2,6 +2,7 @@ requests
 
 numpy
 scikit-learn
+cvxpy
 
 pandas
 matplotlib
