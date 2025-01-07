@@ -1,5 +1,6 @@
+import random
 import numpy as np
-from typing import Tuple, Union, Optional
+from typing import Tuple, Union, Optional, List
 
 
 def bisect_array_on_feature(
@@ -127,3 +128,43 @@ def one_hot_encoding(x: np.ndarray, n_classes: int = None) -> np.ndarray:
     x_one_hot[np.arange(x.shape[0]), x] = 1
 
     return x_one_hot
+
+
+def aligned_shuffle(
+    arr1: Union[List, np.ndarray], arr2: Union[List, np.ndarray], inplace: bool = False
+) -> Union[None, Tuple[np.ndarray, np.ndarray]]:
+    """
+    Shuffle two arrays in the same random order.
+
+    Parameters:
+        arr1 (Union[List, np.ndarray]): The first array to shuffle.
+        arr2 (Union[List, np.ndarray]): The second array to shuffle.
+        inplace (bool): If True, shuffle arrays in place. If False, return new shuffled arrays.
+
+    Returns:
+        None if `inplace` is True.
+        Tuple[np.ndarray, np.ndarray]: Shuffled copies of `arr1` and `arr2` if `inplace` is False.
+
+    Raises:
+        ValueError: If the input arrays have different lengths.
+
+    Examples:
+        >>> arr1 = [1, 2, 3, 4]
+        >>> arr2 = ['a', 'b', 'c', 'd']
+        >>> shuffled_arr1, shuffled_arr2 = aligned_shuffle(arr1, arr2)
+        >>> len(arr1) == len(arr2)  # True
+
+        >>> aligned_shuffle(arr1, arr2, inplace=True)
+        >>> arr1, arr2  # Shuffled in place.
+    """
+    if len(arr1) != len(arr2):
+        raise ValueError("Both arrays must have the same length.")
+
+    combined = list(zip(arr1, arr2))  # Combine the arrays
+    random.shuffle(combined)  # Shuffle the combined list
+
+    if inplace:
+        arr1[:], arr2[:] = zip(*combined)  # Modify original arrays in place
+    else:
+        arr1, arr2 = zip(*combined)  # Unzip into new arrays
+        return np.array(arr1), np.array(arr2)
