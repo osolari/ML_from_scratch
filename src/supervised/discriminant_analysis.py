@@ -192,7 +192,7 @@ class LinearDiscriminantAnalysis:
         """
         X = check_array(X)
         scores = self.decision_function(X)
-        return softmax(scores, axis=1)
+        return np.apply_along_axis(softmax, 1, scores)
 
 
 class QuadraticDiscriminantAnalysis(_BaseDiscriminantAnalysis):
