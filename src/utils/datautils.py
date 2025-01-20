@@ -1,6 +1,14 @@
 import random
+from itertools import combinations_with_replacement
+
 import numpy as np
 from typing import Tuple, Union, Optional, List
+
+from sklearn.base import (
+    TransformerMixin,
+    BaseEstimator,
+)
+from sklearn.utils import check_array
 
 
 def bisect_array_on_feature(
@@ -73,9 +81,6 @@ def bisect_array_on_feature(
         return mask
     else:
         return X[mask], X[~mask], None
-
-
-import numpy as np
 
 
 def one_hot_encoding(x: np.ndarray, n_classes: int = None) -> np.ndarray:
@@ -168,3 +173,129 @@ def aligned_shuffle(
     else:
         arr1, arr2 = zip(*combined)  # Unzip into new arrays
         return np.array(arr1), np.array(arr2)
+
+
+class PolynomialTransformer(TransformerMixin, BaseEstimator):
+    """
+    A transformer that generates polynomial features of the input data.
+
+    This transformer computes all combinations of the input features up to a specified degree, including
+    interactions and powers of individual features.
+
+    Parameters
+    ----------
+    degree : int, optional
+        The degree of the polynomial features to generate. Default is 1.
+
+    Attributes
+    ----------
+    num_input_features : int
+        The number of input features in the training data.
+    _index_combinations : list of tuple
+        The index combinations representing polynomial terms.
+    _num_output_features : int
+        The number of polynomial features generated.
+
+    Methods
+    -------
+    fit(X, y=None)
+        Fit the transformer to the input data and compute index combinations.
+    transform(X, y=None)
+        Transform the input data into polynomial features.
+    is_fitted()
+        Check if the transformer has been fitted.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from sklearn.utils.validation import check_array
+    >>> X = np.array([[1, 2], [3, 4]])
+    >>> transformer = PolynomialTransformer(degree=2)
+    >>> transformer.fit(X)
+    PolynomialTransformer(degree=2)
+    >>> transformer.transform(X)
+    array([[ 1.,  2.,  1.,  2.,  4.],
+           [ 3.,  4.,  9., 12., 16.]])
+    """
+
+    def __init__(self, degree: int = 1):
+        if degree < 1:
+            raise ValueError("Polynomial degree must be at least 1.")
+        elif not isinstance(degree, int):
+            raise ValueError("Polynomial degree must be an integer.")
+        self.degree = degree
+
+        self._index_combinations = None
+
+    def _compute_index_combinations(self):
+        """
+        Compute all combinations of feature indices up to the specified degree.
+        """
+        combs = [
+            combinations_with_replacement(range(self.num_input_features), i)
+            for i in range(0, self.degree + 1)
+        ]
+
+        self._index_combinations = [item for sublist in combs for item in sublist]
+        self._num_output_features = len(self._index_combinations)
+
+    def fit(self, X, y=None):
+        """
+        Fit the transformer to the input data.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+            Input data.
+        y : None
+            Ignored.
+
+        Returns
+        -------
+        self : object
+            Fitted transformer.
+        """
+        X = check_array(X)
+
+        num_samples, self.num_input_features = X.shape
+        self._compute_index_combinations()
+
+        return self
+
+    def transform(self, X, y=None):
+        """
+        Transform the input data into polynomial features.
+
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+            Input data to transform.
+        y : None
+            Ignored.
+
+        Returns
+        -------
+        X_transformed : array of shape (n_samples, n_output_features)
+            Transformed data with polynomial features.
+        """
+        assert self.is_fitted(), "Transformer has not been fitted yet."
+
+        X = check_array(X)
+        if X.shape[1] != self.num_input_features:
+            raise ValueError(
+                "Input data must have the same number of features as the fitted data."
+            )
+        return np.hstack(
+            [np.prod(X[:, i], axis=1, keepdims=True) for i in self._index_combinations]
+        )
+
+    def is_fitted(self):
+        """
+        Check if the transformer has been fitted.
+
+        Returns
+        -------
+        bool
+            True if the transformer has been fitted, False otherwise.
+        """
+        return self._index_combinations is not None

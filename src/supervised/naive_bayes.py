@@ -1,4 +1,4 @@
-"""
+r"""
 Mathematical Derivations of the Naive Bayes Classifier:
 
 The Naive Bayes classifier is based on Bayes' Theorem:
@@ -16,7 +16,7 @@ The Naive Bayes classifier assumes conditional independence between features:
 
 For Gaussian Naive Bayes:
     P(xi|C) is modeled as a Gaussian distribution:
-    P(xi|C) = (1 / sqrt(2 * pi * var_Ci)) * exp(- (xi - mean_Ci)^2 / (2 * var_Ci))
+    P(xi|C) = (1 / sqrt(2 * \pi * var_Ci)) * exp(- (xi - mean_Ci)^2 / (2 * var_Ci))
 
 Log-Likelihood Computation:
     log(P(C|X)) / propto log(P(C)) + / sum_{i=1}^n log(P(xi|C))

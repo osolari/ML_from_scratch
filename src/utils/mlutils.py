@@ -3,7 +3,7 @@ from collections import Counter
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy.special import logsumexp
-from sklearn.utils import check_consistent_length
+from sklearn.utils import check_consistent_length, check_array
 from typing import Union, List, Any
 
 
@@ -278,3 +278,58 @@ def softmax(x: np.ndarray) -> np.ndarray:
     """
     x = log_softmax(x)  # Use log-softmax for numerical stability
     return np.exp(x)
+
+
+def mean_squared_error(y_true, y_pred):
+    """Returns the mean squared error between y_true and y_pred"""
+    mse = np.mean(np.power(y_true - y_pred, 2))
+    return mse
+
+
+import numpy as np
+from sklearn.utils.validation import check_array
+
+
+def compute_covariance_matrix(X: np.ndarray, centered: bool = False) -> np.ndarray:
+    """
+    Compute the covariance matrix of a dataset.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        Input data matrix of shape (n_samples, n_features).
+    centered : bool, optional
+        If False (default), the function centers the data by subtracting the mean.
+        If True, it assumes that the data is already centered.
+
+    Returns
+    -------
+    np.ndarray
+        The covariance matrix of shape (n_features, n_features).
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> X = np.array([[1, 2], [3, 4], [5, 6]])
+    >>> compute_covariance_matrix(X)
+    array([[4., 4.],
+           [4., 4.]])
+
+    >>> X_centered = X - X.mean(axis=0)
+    >>> compute_covariance_matrix(X_centered, centered=True)
+    array([[4., 4.],
+           [4., 4.]])
+
+    Notes
+    -----
+    - The function assumes the input is a 2D NumPy array.
+    - The computed covariance matrix is normalized by the number of samples - 1,
+      following the unbiased estimator convention.
+    """
+    X = check_array(X, ensure_2d=True)
+    if not centered:
+        X = X - np.mean(X, axis=0, keepdims=True)
+
+    # Compute the covariance matrix using the unbiased estimator (n_samples - 1)
+    cov = (X.T @ X) / (X.shape[0] - 1)
+    return cov
